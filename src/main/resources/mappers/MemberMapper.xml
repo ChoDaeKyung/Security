@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.tobi.tokenproject.mapper.MemberMapper">
+
+    <insert id="signUp" parameterType="com.example.tobi.tokenproject.model.Member">
+        INSERT INTO member (userId, password, userName) values (#{userId}, #{password}, #{userName})
+    </insert>
+
+    <select id="findByUserId"
+            parameterType="String">
+        SELECT id,userId,password,userName, role FROM member WHERE userId = #{userId};
+    </select>
+
+</mapper>
