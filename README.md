@@ -17,7 +17,7 @@
 ### 2-1. 로그인 시 토큰 검증 :<br/>
    TokenProvider에서 token값을 받아 validateToken을 통해 토큰 검증<br/>
    -> 유효한 토큰이면 1, 만료된 토큰이면 2, 유효하지않은 토큰이면 3을 반환<br/>
-   
+```java
        public int validateToken(String token) {
         try {
             Jwts.parserBuilder()
@@ -33,28 +33,28 @@
         } catch (Exception e) {
             log.info("Token is not valid");
             return 3;
-        }
+        } 
     }
-    
+```
    -> 후에 validateToken에서 반환한 값을 ERROR 메세지 출력에 사용<br/>
    
 ### 3. ROLE값(권한)에 따른 페이지 접속제어 :<br/>
   #### 1) Controller :<br/>
-  
-      @PreAuthorize 어노테이션을 통해 특정 권한만 접근 가능한 페이지 구현<br/>
-      -> view controller에 @PreAuthorize 어노테이션 적용 시, URL에 접속할 때 대조 가능한 Role값이 없음<br/>
-      -> @PreAuthorize 어노테이션과 관계없이 모든 권한 접근 불가<br/>
-      <img width="327" alt="스크린샷 2024-11-19 오전 1 23 06" src="https://github.com/user-attachments/assets/57ef55d0-cd50-42da-a50c-1a2695ddd55d"><br/>
-      -> 때문에 URL 접근은 허가한 후, 해당 html의 js파일에 ajax와 이를 통해 전송한 데이터를 받는 restcontroller를 구현<br/>
-      -> 각 페이지의 ajax에 해당하는 reatcontroller에 @PreAuthorize 어노테이션을 적용함으로써 Role값이 다른 아이디의 접속을 차단<br/>
-      <img width="374" alt="스크린샷 2024-11-19 오전 1 24 08" src="https://github.com/user-attachments/assets/7a2b7983-2753-4f2b-9473-21668c3f32b6"><br/>
-      <img width="470" alt="스크린샷 2024-11-19 오전 1 24 39" src="https://github.com/user-attachments/assets/644b0624-b271-4195-b76c-3aaf8d261b7a">
-      <img width="462" alt="스크린샷 2024-11-19 오전 1 25 09" src="https://github.com/user-attachments/assets/67ec2f18-913e-4ea4-9cbe-a2e1065e60c1"><br/>
+   @PreAuthorize 어노테이션을 통해 특정 권한만 접근 가능한 페이지 구현<br/>
+   -> view controller에 @PreAuthorize 어노테이션 적용 시, URL에 접속할 때 대조 가능한 Role값이 없음<br/>
+   -> @PreAuthorize 어노테이션과 관계없이 모든 권한 접근 불가<br/>
+   <img width="327" alt="스크린샷 2024-11-19 오전 1 23 06" src="https://github.com/user-attachments/assets/57ef55d0-cd50-42da-a50c-1a2695ddd55d"><br/>
+   -> 때문에 URL 접근은 허가한 후, 해당 html의 js파일에 ajax와 이를 통해 전송한 데이터를 받는 restcontroller를 구현<br/>
+   -> 각 페이지의 ajax에 해당하는 reatcontroller에 @PreAuthorize 어노테이션을 적용함으로써 Role값이 다른 아이디의 접속을 차단<br/>
+    <img width="374" alt="스크린샷 2024-11-19 오전 1 24 08" src="https://github.com/user-attachments/assets/7a2b7983-2753-4f2b-9473-21668c3f32b6"><br/>
+    <img width="470" alt="스크린샷 2024-11-19 오전 1 24 39" src="https://github.com/user-attachments/assets/644b0624-b271-4195-b76c-3aaf8d261b7a">
+    <img width="462" alt="스크린샷 2024-11-19 오전 1 25 09" src="https://github.com/user-attachments/assets/67ec2f18-913e-4ea4-9cbe-a2e1065e60c1"><br/>
       
    #### 2) Security :<br/>
-      WebSecurityConfig의 AccessDeniedHandler(403 ERROR)와 AuthenticationEntryPoint(401 ERROR)를 통해 에러 코드 반환<br/>
-      -> AccessDeniedHandler와 AuthenticationEntryPoint를 통해 ERROR 메세지를 JSON 메시지로 변환하여 반환<br/>
+  WebSecurityConfig의 AccessDeniedHandler(403 ERROR)와 AuthenticationEntryPoint(401 ERROR)를 통해 에러 코드 반환<br/>
+  -> AccessDeniedHandler와 AuthenticationEntryPoint를 통해 ERROR 메세지를 JSON 메시지로 변환하여 반환<br/>
 
+  ```java
 @Bean
 public AccessDeniedHandler accessDeniedHandler() {
     return (request, response, accessDeniedException) -> {
@@ -74,13 +74,13 @@ public AuthenticationEntryPoint authenticationEntryPoint() {
         response.getWriter().write("{\"error\": \"Unauthorized\", \"message\": \"Authentication is required to access this resource.\"}");
     };
 }
+```
 
-
-      -> JavaScript에서 WebSecurityConfig로부터 반환 받은 JSON 메시지의 ERROR값에 따른 페이지 이동 처리<br/>
-      -> 401(토큰 만료):refresh토큰 재발급 후 "/main" 페이지로 이동<br/>
+   -> JavaScript에서 WebSecurityConfig로부터 반환 받은 JSON 메시지의 ERROR값에 따른 페이지 이동 처리<br/>
+   -> 401(토큰 만료):refresh토큰 재발급 후 "/main" 페이지로 이동<br/>
          403(유효하지않은 토큰 & 권한 불일치):"/access-denied" 페이지로 이동<br/>
 
-
+```java
          error: (xhr) => {
             if (xhr.status === 401) {
                 handleTokenExpiration();
@@ -92,6 +92,19 @@ public AuthenticationEntryPoint authenticationEntryPoint() {
         }
 ```
 
-ㅁㄴㅇ
-      
-      
+### 4. 페이지 구현 
+#### 1) "/main" (로그인,회원가입)
+<img width="1468" alt="스크린샷 2024-11-19 오전 1 48 59" src="https://github.com/user-attachments/assets/0f12a0bc-06f8-4f80-ab33-7a7a3ec3f130">
+<img width="1470" alt="스크린샷 2024-11-19 오전 1 49 48" src="https://github.com/user-attachments/assets/e7d2e1b3-65b7-4188-b3a1-696eb039fa5f"><br/>
+
+#### 2) "/select" (권한 일치 시에만 접속가능한 버튼 구현, 로그아웃)
+-> 모두가능 : ROLE값에 상관없이 모든 사용자 접속가능
+<img width="1469" alt="스크린샷 2024-11-19 오전 1 54 30" src="https://github.com/user-attachments/assets/1fd7a8b3-0e09-48a1-952f-d1073c8211bd"><br/>
+<br/>
+-> 관리자,사용자 : 각각 role값이 ROLE_ADMIN과 ROLE_USER인 경우에만 접속가능, 불일치시 "/access-denied" 페이지로 이동 (해당 이미지에 사용한 아이디의 role값은 ROLE_USER)
+<img width="1469" alt="스크린샷 2024-11-19 오전 1 55 19" src="https://github.com/user-attachments/assets/ebb045e4-21cb-47f5-b1b9-db5cfded582b">
+<img width="1468" alt="스크린샷 2024-11-19 오전 1 56 13" src="https://github.com/user-attachments/assets/ebbeea0c-9360-44aa-a896-947d4e1e7574">
+
+
+
+
