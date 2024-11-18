@@ -77,7 +77,7 @@ public AuthenticationEntryPoint authenticationEntryPoint() {
 ```
 
    -> JavaScript에서 WebSecurityConfig로부터 반환 받은 JSON 메시지의 ERROR값에 따른 페이지 이동 처리<br/>
-   -> 401(토큰 만료):refresh토큰 재발급 후 "/main" 페이지로 이동<br/>
+   -> 401(토큰 만료):handleTokenExpiration()를 통해 refresh토큰 재발급 후 "/main" 페이지로 이동<br/>
          403(유효하지않은 토큰 & 권한 불일치):"/access-denied" 페이지로 이동<br/>
 
 ```java
@@ -90,6 +90,47 @@ public AuthenticationEntryPoint authenticationEntryPoint() {
                 alert("Unexpected error");
             }
         }
+```
+```java
+let handleTokenExpiration = () => {
+    $.ajax({
+        type: 'POST',
+        url: '/refresh-token',
+        contentType: 'application/json; charset=utf-8',
+        dataType: 'json',
+        xhrFields: {
+            withCredentials: true // 쿠키를 포함해서 요청을 보냄
+        },
+        success: (response) => {
+            console.log('response :: ', response);
+            localStorage.setItem('accessToken', response.accessToken)
+        },
+        error: (error) => {
+            alert('로그인이 필요합니다.\n 다시 로그인해주세요.');
+            localStorage.removeItem('accessToken');
+            window.location.href = '/member/login';
+        }
+
+    })
+}
+```
+```java
+    @PostMapping("/refresh-token")
+    public ResponseEntity<?> refreshToken(HttpServletRequest request, HttpServletResponse response) {
+
+        RefreshTokenResponseDTO refreshTokenResponseDTO = tokenService.refreshToken(request.getCookies());
+
+        if (refreshTokenResponseDTO.isValidated()){
+            CookieUtil.addCookie(response, "refreshToken", refreshTokenResponseDTO.getRefreshToken(), 7*24*60*60);
+            refreshTokenResponseDTO.setRefreshToken(null);
+
+            return ResponseEntity.ok(refreshTokenResponseDTO);
+        }
+
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body("Refresh Token expired");
+    }
 ```
 
 ### 4. 페이지 구현 
