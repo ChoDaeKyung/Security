@@ -45,7 +45,8 @@
    -> @PreAuthorize 어노테이션과 관계없이 모든 권한 접근 불가<br/>
    <img width="327" alt="스크린샷 2024-11-19 오전 1 23 06" src="https://github.com/user-attachments/assets/57ef55d0-cd50-42da-a50c-1a2695ddd55d"><br/>
    -> 때문에 URL 접근은 허가한 후, 해당 html의 js파일에 ajax와 이를 통해 전송한 데이터를 받는 restcontroller를 구현<br/>
-   -> 각 페이지의 ajax에 해당하는 reatcontroller에 @PreAuthorize 어노테이션을 적용함으로써 Role값이 다른 아이디의 접속을 차단<br/>
+   -> 각 페이지의 ajax에 해당하는 reatcontroller에 @PreAuthorize 어노테이션을 적용<br/>
+   -> Role값이 다른 아이디의 접속 차단<br/>
     <img width="374" alt="스크린샷 2024-11-19 오전 1 24 08" src="https://github.com/user-attachments/assets/7a2b7983-2753-4f2b-9473-21668c3f32b6"><br/>
     <img width="470" alt="스크린샷 2024-11-19 오전 1 24 39" src="https://github.com/user-attachments/assets/644b0624-b271-4195-b76c-3aaf8d261b7a">
     <img width="462" alt="스크린샷 2024-11-19 오전 1 25 09" src="https://github.com/user-attachments/assets/67ec2f18-913e-4ea4-9cbe-a2e1065e60c1"><br/>
@@ -78,7 +79,7 @@ public AuthenticationEntryPoint authenticationEntryPoint() {
 
    -> JavaScript에서 WebSecurityConfig로부터 반환 받은 JSON 메시지의 ERROR값에 따른 페이지 이동 처리<br/>
    -> 401(토큰 만료):handleTokenExpiration()를 통해 refresh토큰 재발급 후 "/main" 페이지로 이동<br/>
-         403(유효하지않은 토큰 & 권한 불일치):"/access-denied" 페이지로 이동<br/>
+   -> 403(유효하지않은 토큰 & 권한 불일치):"/access-denied" 페이지로 이동<br/>
 
 ```java
          error: (xhr) => {
